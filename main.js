@@ -406,15 +406,15 @@ function drawPipes() {
 
 function drawScore() {
   ctx.save();
-  ctx.font = 'bold 36px "Baloo 2", Arial, sans-serif';
+  ctx.font = 'bold 24px "Baloo 2", Arial, sans-serif';
   ctx.fillStyle = '#fff';
   ctx.strokeStyle = '#00e6ff';
-  ctx.lineWidth = 6;
-  ctx.textAlign = 'center';
+  ctx.lineWidth = 4;
+  ctx.textAlign = 'left';
   ctx.shadowColor = '#00e6ff';
-  ctx.shadowBlur = 16;
-  ctx.strokeText('Score: ' + score, canvas.width/2, 60);
-  ctx.fillText('Score: ' + score, canvas.width/2, 60);
+  ctx.shadowBlur = 8;
+  ctx.strokeText(score.toString(), 20, 40);
+  ctx.fillText(score.toString(), 20, 40);
   ctx.restore();
 }
 
@@ -577,19 +577,17 @@ function gameOver() {
   fishZapped = true;
   fishZapFrame = 0;
   
-  // Play sound effects
   bgMusic.pause();
   zapSound.currentTime = 0;
   zapSound.play();
   
-  // Show game over screen with longer delay to show death animation
   setTimeout(() => {
     fishZapped = false;
     gameoverSound.currentTime = 0;
     gameoverSound.play();
     finalScore.textContent = `Your Score: ${score}`;
     fadeIn(gameoverScreen);
-  }, 1500); // Increased delay to 1.5 seconds
+  }, 600);
 }
 
 function jump() {
@@ -627,8 +625,10 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
+  installBtn.textContent = 'Install';
   installBtn.style.display = 'block';
 });
+
 installBtn.addEventListener('click', () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();

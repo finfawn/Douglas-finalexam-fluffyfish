@@ -188,6 +188,12 @@ button:hover {
     top: 8px;
     right: 8px;
   }
+  
+  .score-display {
+    top: 15px;
+    left: 15px;
+    font-size: 20px;
+  }
 }
 
 /* Adjust font sizes for smaller screens */
@@ -216,4 +222,14 @@ button:hover {
   font-size: 0.9em;
   backdrop-filter: blur(4px);
   z-index: 1;
+}
+
+.score-display {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  z-index: 2;
 } 
