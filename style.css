@@ -70,7 +70,7 @@ button:hover {
 }
 #install-btn {
   position: absolute;
-  top: 15px;
+  bottom: 15px;
   right: 15px;
   z-index: 3;
   background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
@@ -85,6 +85,7 @@ button:hover {
   font-family: 'Baloo 2', Arial, sans-serif;
   font-weight: 600;
   display: none;
+  margin-bottom: env(safe-area-inset-bottom, 0px); /* For iOS safe area */
 }
 #install-btn:hover {
   background: linear-gradient(90deg, #ffcc33 0%, #ffb347 100%);
@@ -237,62 +238,91 @@ button:hover {
 #gameover-screen {
   background: rgba(30, 42, 62, 0.85);
   animation: fadeInBlur 0.4s ease-out;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
 }
 
 #gameover-screen h1 {
-  font-size: 3em;
-  margin: 0;
+  font-size: 3.5em;
+  margin: 0 0 20px 0;
   color: #ff4757;
   text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
-  display: flex;
-  align-items: center;
-  gap: 15px;
+  animation: gameOverPulse 2s infinite;
+  letter-spacing: 2px;
+  transform: scale(0);
+  animation: popInRotate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-#gameover-screen h1::before,
-#gameover-screen h1::after {
-  content: "⚡";
-  font-size: 0.8em;
-  animation: zapPulse 1s infinite;
-}
-
-.score-container-gameover {
+#gameover-screen .score-container {
   background: rgba(255, 255, 255, 0.1);
   padding: 20px 40px;
   border-radius: 15px;
+  margin: 10px 0 25px 0;
   backdrop-filter: blur(5px);
   border: 2px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
+  transform: translateY(20px);
+  opacity: 0;
+  animation: slideUpFade 0.4s ease-out 0.2s forwards;
 }
 
 #final-score {
-  font-size: 3em;
+  font-size: 2.5em;
   color: #ffeb3b;
-  margin: 0;
+  margin: 5px 0;
   text-shadow: 0 0 15px rgba(255, 235, 59, 0.7);
   animation: scorePulse 1.5s infinite;
 }
 
-#restart-btn {
-  background: #ff4757 !important;
-  padding: 15px 40px !important;
-  font-size: 1.4em !important;
-  border-radius: 25px !important;
-  color: white !important;
+#gameover-screen #restart-btn {
+  background: linear-gradient(90deg, #ff4757 0%, #ff6b81 100%);
+  padding: 15px 40px;
+  font-size: 1.4em;
+  border-radius: 25px;
   transform: scale(0);
   animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s forwards;
-  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4) !important;
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
 }
 
-#restart-btn:hover {
-  transform: scale(1.05) translateY(-2px) !important;
-  background: #ff5e6a !important;
-  box-shadow: 0 6px 20px rgba(255, 71, 87, 0.6) !important;
+#gameover-screen #restart-btn:hover {
+  background: linear-gradient(90deg, #ff6b81 0%, #ff4757 100%);
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 71, 87, 0.6);
+}
+
+@keyframes gameOverPulse {
+  0% {
+    text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(255, 71, 87, 0.8), 0 0 50px rgba(255, 71, 87, 0.4);
+  }
+  100% {
+    text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+  }
+}
+
+@keyframes popInRotate {
+  from {
+    transform: scale(0) rotate(-10deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpFade {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeInBlur {
@@ -303,23 +333,6 @@ button:hover {
   to {
     opacity: 1;
     backdrop-filter: blur(8px);
-  }
-}
-
-@keyframes zapPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.1); }
-}
-
-@keyframes bounceIn {
-  from {
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  to {
-    transform: scale(1);
   }
 }
 

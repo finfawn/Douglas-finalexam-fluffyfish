@@ -39,6 +39,9 @@ const FISH_BOB_FREQUENCY = 1/30;
 let electricEffects = [];
 const ELECTRIC_COLORS = ['#00ffff', '#ffffff', '#4df7ff'];
 
+// Add bottom electric effect variables
+let bottomElectricEffects = [];
+
 function createElectricEffect(x, y) {
   for (let i = 0; i < 12; i++) {
     electricEffects.push({
@@ -91,6 +94,55 @@ function drawElectricEffects() {
   });
   ctx.globalAlpha = 1;
   ctx.shadowBlur = 0;
+}
+
+function createBottomElectricEffect() {
+  const numEffects = 8;
+  const spacing = canvas.width / numEffects;
+  
+  for (let i = 0; i < numEffects; i++) {
+    bottomElectricEffects.push({
+      x: i * spacing + Math.random() * 20,
+      y: canvas.height,
+      height: 20 + Math.random() * 15,
+      alpha: 0.7 + Math.random() * 0.3,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function updateBottomElectricEffects(timeScale) {
+  bottomElectricEffects.forEach(effect => {
+    effect.phase += 0.1 * timeScale;
+    effect.height = 20 + Math.sin(effect.phase) * 10;
+    effect.alpha = 0.7 + Math.sin(effect.phase) * 0.3;
+  });
+}
+
+function drawBottomElectricEffects() {
+  ctx.save();
+  bottomElectricEffects.forEach(effect => {
+    const gradient = ctx.createLinearGradient(effect.x, canvas.height, effect.x, canvas.height - effect.height);
+    gradient.addColorStop(0, `rgba(0, 255, 255, ${effect.alpha})`);
+    gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.moveTo(effect.x - 5, canvas.height);
+    ctx.lineTo(effect.x + 5, canvas.height);
+    ctx.lineTo(effect.x + Math.sin(effect.phase) * 3, canvas.height - effect.height);
+    ctx.lineTo(effect.x - Math.sin(effect.phase) * 3, canvas.height - effect.height);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Add glow effect
+    ctx.shadowColor = '#00ffff';
+    ctx.shadowBlur = 15;
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+  ctx.restore();
 }
 
 // Handle canvas sizing
@@ -265,6 +317,8 @@ function resetGame() {
   score = 0;
   frame = 0;
   bubbles = [];
+  // Reset score display
+  document.querySelector('.score-value').textContent = '0';
 }
 
 let fishZapped = false;
@@ -428,6 +482,9 @@ function updateGameLogic(deltaTime) {
   if (gameState === 'gameover' && fishZapped) {
     updateElectricEffects(timeScale);
   }
+  
+  // Update bottom electric effects
+  updateBottomElectricEffects(timeScale);
 
   if (gameState === 'playing') {
     // Update pipes
@@ -519,6 +576,7 @@ function gameLoop(currentTime) {
   drawBubbles();
   drawSplashes();
   drawParticles();
+  drawBottomElectricEffects();
   
   if (gameState === 'playing') {
     drawPipes();
@@ -531,7 +589,7 @@ function gameLoop(currentTime) {
   drawCaustics();
   
   if (gameState === 'playing') {
-    if (checkCollision() || fish.y + fish.h >= canvas.height) {
+    if (checkCollision()) {
       fish.alive = false;
       createElectricEffect(fish.x, fish.y);
       spawnParticles(fish.x, fish.y);
@@ -545,6 +603,7 @@ function gameLoop(currentTime) {
   } else {
     drawSplashes();
     drawParticles();
+    drawBottomElectricEffects();
     if (fishZapped) fishZapFrame++;
   }
 }
@@ -734,7 +793,10 @@ async function initializeGame() {
 }
 
 // Call initialize when the page loads
-window.addEventListener('load', initializeGame);
+window.addEventListener('load', () => {
+  initGame();
+  initializeGame();
+});
 
 // Update online status events
 window.addEventListener('online', updateOnlineStatus);
@@ -765,17 +827,35 @@ function startScreenBubbles() {
   }, 420);
 }
 
-// Optimize collision detection
+// Update collision detection to be more forgiving
 function checkCollision() {
-  const fishRight = fish.x + fish.w;
-  const fishBottom = fish.y + fish.h;
+  const collisionMargin = 8; // Reduced collision margin for more precise detection
+  const fishHitbox = {
+    x: fish.x + collisionMargin,
+    y: fish.y + collisionMargin,
+    w: fish.w - collisionMargin * 2,
+    h: fish.h - collisionMargin * 2
+  };
   
   for (let pipe of pipes) {
-    if (fishRight < pipe.x || fish.x > pipe.x + pipeWidth) continue;
+    if (fishHitbox.x + fishHitbox.w < pipe.x || fishHitbox.x > pipe.x + pipeWidth) continue;
     
-    if (fish.y < pipe.top || fishBottom > pipe.top + pipeGap) {
+    if (fishHitbox.y < pipe.top || fishHitbox.y + fishHitbox.h > pipe.top + pipeGap) {
       return true;
     }
   }
+  
+  // Check for bottom collision with electric effect
+  if (fish.y + fish.h >= canvas.height - 10) {
+    createElectricEffect(fish.x, canvas.height - fish.h);
+    return true;
+  }
+  
   return false;
+}
+
+// Initialize bottom electric effects
+function initGame() {
+  createBottomElectricEffect();
+  // ... any other initialization code ...
 } 
