@@ -1,0 +1,21 @@
+{
+  "name": "Flappy Fish",
+  "short_name": "FlappyFish",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1276ff",
+  "theme_color": "#1276ff",
+  "description": "Help the fish swim through the pipes!",
+  "icons": [
+    {
+      "src": "fish.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "fish.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 

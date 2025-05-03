@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&display=swap');
+body {
+  background: linear-gradient(135deg, #1276ff 0%, #6dd5fa 100%);
+  margin: 0;
+  font-family: 'Baloo 2', Arial, sans-serif;
+  min-height: 100vh;
+}
+#game-container {
+  width: 480px;
+  margin: 40px auto;
+  position: relative;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(2px);
+}
+canvas {
+  display: block;
+  background: url('bg.jpg') no-repeat center center;
+  background-size: cover;
+  border-radius: 20px;
+  box-shadow: 0 0 32px #2228, 0 4px 32px #1276ff44;
+}
+.overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30, 42, 62, 0.45);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(6px);
+  transition: opacity 0.3s;
+}
+#gameover-screen, #start-screen, #offline-banner {
+  display: none;
+}
+button {
+  padding: 12px 32px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #1abc9c 60%, #16d9e3 100%);
+  color: #fff;
+  cursor: pointer;
+  margin-top: 18px;
+  font-family: 'Baloo 2', Arial, sans-serif;
+  font-weight: 600;
+  box-shadow: 0 2px 8px #1276ff33;
+  transition: background 0.2s, transform 0.2s;
+}
+button:hover {
+  background: linear-gradient(90deg, #16d9e3 0%, #1abc9c 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 16px #1276ff55;
+}
+#install-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  z-index: 3;
+  background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
+  color: #222;
+  font-size: 1em;
+  padding: 8px 18px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #ffcc3344;
+}
+#install-btn:hover {
+  background: linear-gradient(90deg, #ffcc33 0%, #ffb347 100%);
+  color: #000;
+}
+#final-score {
+  font-size: 2em;
+  margin: 12px 0 0 0;
+  color: #ffeb3b;
+  text-shadow: 0 2px 8px #000a;
+}
+.start-fish-glow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.start-fish-img {
+  width: 90px;
+  height: 72px;
+  filter: drop-shadow(0 0 32px #00e6ff88) drop-shadow(0 0 16px #fff8);
+  animation: fish-bounce 1.2s infinite cubic-bezier(.5,1.5,.5,1);
+}
+@keyframes fish-bounce {
+  0%, 100% { transform: translateY(0) scale(1.04); }
+  50% { transform: translateY(-16px) scale(1.12); }
+}
+#start-screen .game-title {
+  font-size: 2.6em;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 4px 24px #00e6ff99, 0 2px 8px #000a;
+  margin-bottom: 0.2em;
+}
+#start-screen .game-subtitle {
+  font-size: 1.15em;
+  color: #b3e5fc;
+  margin-bottom: 1.2em;
+  text-align: center;
+  text-shadow: 0 2px 8px #000a;
+}
+#start-screen .hint {
+  color: #ffeb3b;
+  font-size: 1.05em;
+  text-shadow: 0 2px 8px #000a;
+}
+#start-bubbles {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 100px;
+  pointer-events: none;
+  z-index: 1;
+}
+.start-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #b3e5fc 60%, #fff 100%);
+  opacity: 0.7;
+  box-shadow: 0 0 16px #b3e5fc88;
+  animation: start-bubble-rise 2.8s linear forwards;
+}
+@keyframes start-bubble-rise {
+  0% { transform: translateY(0) scale(1); opacity: 0.7; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(-120px) scale(1.2); opacity: 0; }
+} 
