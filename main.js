@@ -24,6 +24,13 @@ let pipeGap = 200;
 let pipeWidth = 70;
 let pipeSpeed = 2.1;
 let frame = 0;
+let lastTime = 0;
+let deltaTime = 0;
+
+// Pre-calculate some values
+const PIPE_SPAWN_INTERVAL = 120;
+const BUBBLE_SPAWN_INTERVAL = 20;
+const FISH_BOB_FREQUENCY = 1/30;
 
 // Handle canvas sizing
 function resizeCanvas() {
@@ -331,44 +338,67 @@ function drawScore() {
   ctx.restore();
 }
 
-function updateFish() {
-  if (gameState === 'tutorial') {
-    // In tutorial, fish just floats with a gentle bobbing motion
-    fish.y = canvas.height / 2 + Math.sin(frame / 30) * 10;
-    return;
-  }
-  
-  fish.vy += fish.gravity;
-  fish.y += fish.vy;
-  if (fish.y + fish.h > canvas.height) {
-    fish.y = canvas.height - fish.h;
-    fish.alive = false;
-  }
-  if (fish.y < 0) fish.y = 0;
-}
+function updateGameLogic(deltaTime) {
+  // Scale movements by deltaTime to make them frame-rate independent
+  const timeScale = deltaTime / (1000/60); // normalize to 60 FPS
 
-function updatePipes() {
-  pipes.forEach(pipe => pipe.x -= pipeSpeed);
-  if (pipes.length && pipes[0].x + pipeWidth < 0) pipes.shift();
-  // Increase interval between pipes for more distance
-  if (frame % 120 === 0) {
-    let top = Math.random() * (canvas.height - pipeGap - 100) + 40;
-    pipes.push({ x: canvas.width, top });
-  }
-}
-
-function checkCollision() {
-  for (let pipe of pipes) {
-    if (
-      fish.x < pipe.x + pipeWidth &&
-      fish.x + fish.w > pipe.x &&
-      (fish.y < pipe.top || fish.y + fish.h > pipe.top + pipeGap)
-    ) {
-      fish.alive = false;
-      return true;
+  if (gameState === 'playing') {
+    // Update pipes
+    pipes.forEach(pipe => pipe.x -= pipeSpeed * timeScale);
+    if (pipes.length && pipes[0].x + pipeWidth < 0) pipes.shift();
+    
+    // Spawn new pipes
+    if (frame % PIPE_SPAWN_INTERVAL === 0) {
+      let top = Math.random() * (canvas.height - pipeGap - 100) + 40;
+      pipes.push({ x: canvas.width, top });
     }
+    
+    // Update score
+    updateScore();
   }
-  return false;
+
+  // Update fish position
+  if (gameState === 'tutorial') {
+    fish.y = canvas.height / 2 + Math.sin(frame * FISH_BOB_FREQUENCY) * 10;
+  } else if (gameState === 'playing') {
+    fish.vy += fish.gravity * timeScale;
+    fish.y += fish.vy * timeScale;
+    
+    if (fish.y + fish.h > canvas.height) {
+      fish.y = canvas.height - fish.h;
+      fish.alive = false;
+    }
+    if (fish.y < 0) fish.y = 0;
+  }
+
+  // Update effects with deltaTime
+  updateEffects(timeScale);
+}
+
+function updateEffects(timeScale) {
+  // Update bubbles with time scaling
+  bubbles.forEach(b => {
+    b.y -= b.speed * timeScale;
+    b.x += b.vx * timeScale;
+    b.alpha -= 0.008 * timeScale;
+  });
+  bubbles = bubbles.filter(b => b.y + b.r > 0 && b.alpha > 0);
+
+  // Update splashes with time scaling
+  splashes.forEach(s => {
+    s.x += s.vx * timeScale;
+    s.y += s.vy * timeScale;
+    s.alpha -= 0.04 * timeScale;
+  });
+  splashes = splashes.filter(s => s.alpha > 0);
+
+  // Update particles with time scaling
+  particles.forEach(p => {
+    p.x += p.vx * timeScale;
+    p.y += p.vy * timeScale;
+    p.alpha -= 0.025 * timeScale;
+  });
+  particles = particles.filter(p => p.alpha > 0);
 }
 
 function updateScore() {
@@ -380,13 +410,24 @@ function updateScore() {
   });
 }
 
-function gameLoop() {
+function gameLoop(currentTime) {
+  if (!lastTime) lastTime = currentTime;
+  deltaTime = currentTime - lastTime;
+  lastTime = currentTime;
+
+  // Limit delta time to prevent huge jumps
+  if (deltaTime > 100) deltaTime = 100;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Update game logic with delta time
+  updateGameLogic(deltaTime);
+  
+  // Draw everything
   drawBubbles();
   drawSplashes();
   drawParticles();
   
-  // Only draw pipes during actual gameplay
   if (gameState === 'playing') {
     drawPipes();
   }
@@ -397,16 +438,7 @@ function gameLoop() {
   }
   drawCaustics();
   
-  // Always update visual effects and fish
-  updateBubbles();
-  updateSplashes();
-  updateParticles();
-  updateFish();
-  
-  // Only update gameplay elements during playing state
   if (gameState === 'playing') {
-    updatePipes();
-    updateScore();
     if (checkCollision() || fish.y + fish.h >= canvas.height) {
       spawnParticles(fish.x, fish.y);
       gameOver();
@@ -417,8 +449,6 @@ function gameLoop() {
   if (gameState !== 'gameover') {
     requestAnimationFrame(gameLoop);
   } else {
-    updateSplashes();
-    updateParticles();
     drawSplashes();
     drawParticles();
     if (fishZapped) fishZapFrame++;
@@ -440,11 +470,12 @@ function startGame() {
   fadeOut(startScreen);
   fadeOut(gameoverScreen);
   gameState = 'tutorial';
-  fish.y = canvas.height / 2; // Start fish in the middle
-  fish.vy = 0; // No vertical velocity in tutorial
+  fish.y = canvas.height / 2;
+  fish.vy = 0;
   bgMusic.currentTime = 0;
   bgMusic.play();
-  gameLoop();
+  lastTime = 0; // Reset time tracking
+  requestAnimationFrame(gameLoop);
 }
 
 function startActualGame() {
@@ -559,4 +590,19 @@ function startScreenBubbles() {
       if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
     }, 2800);
   }, 420);
+}
+
+// Optimize collision detection
+function checkCollision() {
+  const fishRight = fish.x + fish.w;
+  const fishBottom = fish.y + fish.h;
+  
+  for (let pipe of pipes) {
+    if (fishRight < pipe.x || fish.x > pipe.x + pipeWidth) continue;
+    
+    if (fish.y < pipe.top || fishBottom > pipe.top + pipeGap) {
+      return true;
+    }
+  }
+  return false;
 } 
