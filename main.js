@@ -15,6 +15,7 @@ const bgMusic = document.getElementById('bg-music');
 const jumpSound = document.getElementById('jump-sound');
 const gameoverSound = document.getElementById('gameover-sound');
 const zapSound = document.getElementById('zap-sound');
+const blingSound = document.getElementById('bling-sound');
 
 // Game Variables
 let fish = { x: 80, y: 320, w: 60, h: 48, vy: 0, gravity: 0.36, jump: -7.5, alive: true };
@@ -209,7 +210,9 @@ function updateParticles() {
   particles.forEach(p => {
     p.x += p.vx;
     p.y += p.vy;
-    p.alpha -= 0.025;
+    p.vy += 0.1; // Add gravity
+    p.vx *= 0.99; // Add air resistance
+    p.alpha -= 0.02;
   });
   particles = particles.filter(p => p.alpha > 0);
 }
@@ -490,6 +493,11 @@ function updateScore() {
     if (!pipe.passed && pipe.x + pipeWidth < fish.x) {
       score++;
       pipe.passed = true;
+      // Play bling sound
+      blingSound.currentTime = 0;
+      blingSound.play();
+      // Update score display
+      document.querySelector('.score-value').textContent = score;
     }
   });
 }
@@ -555,6 +563,7 @@ function startGame() {
   resetGame();
   fadeOut(startScreen);
   fadeOut(gameoverScreen);
+  fadeIn(document.querySelector('.score-container'));
   gameState = 'tutorial';
   fish.y = canvas.height / 2;
   fish.vy = 0;
@@ -576,7 +585,12 @@ function gameOver() {
   fish.alive = false;
   fishZapped = true;
   fishZapFrame = 0;
+  fadeOut(document.querySelector('.score-container'));
   
+  // Create a burst of particles
+  createGameOverBurst();
+  
+  // Play sound effects
   bgMusic.pause();
   zapSound.currentTime = 0;
   zapSound.play();
@@ -585,9 +599,41 @@ function gameOver() {
     fishZapped = false;
     gameoverSound.currentTime = 0;
     gameoverSound.play();
-    finalScore.textContent = `Your Score: ${score}`;
+    document.getElementById('final-score').textContent = score;
     fadeIn(gameoverScreen);
   }, 600);
+}
+
+function createGameOverBurst() {
+  // Create particles in a circular burst
+  for (let i = 0; i < 20; i++) {
+    const angle = (Math.PI * 2 * i) / 20;
+    const speed = 5 + Math.random() * 3;
+    particles.push({
+      x: fish.x + fish.w / 2,
+      y: fish.y + fish.h / 2,
+      r: Math.random() * 4 + 2,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      alpha: 1,
+      color: `hsl(${Math.random() * 60 + 180}, 80%, 70%)`
+    });
+  }
+  
+  // Create some larger, slower particles
+  for (let i = 0; i < 10; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2 + Math.random() * 2;
+    particles.push({
+      x: fish.x + fish.w / 2,
+      y: fish.y + fish.h / 2,
+      r: Math.random() * 6 + 4,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      alpha: 1,
+      color: '#ff4757'
+    });
+  }
 }
 
 function jump() {

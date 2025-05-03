@@ -10,6 +10,10 @@
 <body>
   <div id="game-container">
     <canvas id="gameCanvas" width="480" height="720"></canvas>
+    <div class="score-container" style="display: none;">
+      <span class="score-label">Score</span>
+      <span class="score-value">0</span>
+    </div>
     <div id="start-screen" class="overlay">
       <div class="start-fish-glow">
         <img src="fish.png" alt="Fish" class="start-fish-img" />
@@ -20,9 +24,11 @@
       <button id="start-btn">Start Game</button>
     </div>
     <div id="gameover-screen" class="overlay">
-      <h1>Fish 🐟 Over</h1>
-      <p id="final-score"></p>
-      <button id="restart-btn">Restart</button>
+      <h1>⚡ GAME OVER ⚡</h1>
+      <div class="score-container">
+        <div id="final-score">0</div>
+      </div>
+      <button id="restart-btn">Play Again!</button>
     </div>
     <div id="offline-banner" class="overlay">No Internet Connection</div>
     <button id="install-btn" style="display:none;">Install App</button>
@@ -31,6 +37,7 @@
   <audio id="jump-sound" src="bubbles-03-91268.mp3"></audio>
   <audio id="gameover-sound" src="game-over-transition-fx-178632.mp3"></audio>
   <audio id="zap-sound" src="electric_zap_001-6374.mp3"></audio>
+  <audio id="bling-sound" src="bling.mp3"></audio>
   <script src="main.js"></script>
 </body>
 </html> 

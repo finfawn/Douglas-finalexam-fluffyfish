@@ -232,4 +232,162 @@ button:hover {
   color: #fff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   z-index: 2;
+}
+
+#gameover-screen {
+  background: rgba(30, 42, 62, 0.85);
+  animation: fadeInBlur 0.4s ease-out;
+}
+
+#gameover-screen h1 {
+  font-size: 3.5em;
+  margin: 0 0 20px 0;
+  color: #ff4757;
+  text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+  animation: gameOverPulse 2s infinite;
+  letter-spacing: 2px;
+  transform: scale(0);
+  animation: popInRotate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+#gameover-screen .score-container {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px 40px;
+  border-radius: 15px;
+  margin: 10px 0 25px 0;
+  backdrop-filter: blur(5px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transform: translateY(20px);
+  opacity: 0;
+  animation: slideUpFade 0.4s ease-out 0.2s forwards;
+}
+
+#final-score {
+  font-size: 2.5em;
+  color: #ffeb3b;
+  margin: 5px 0;
+  text-shadow: 0 0 15px rgba(255, 235, 59, 0.7);
+  animation: scorePulse 1.5s infinite;
+}
+
+#gameover-screen #restart-btn {
+  background: linear-gradient(90deg, #ff4757 0%, #ff6b81 100%);
+  padding: 15px 40px;
+  font-size: 1.4em;
+  border-radius: 25px;
+  transform: scale(0);
+  animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s forwards;
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#gameover-screen #restart-btn:hover {
+  background: linear-gradient(90deg, #ff6b81 0%, #ff4757 100%);
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 71, 87, 0.6);
+}
+
+@keyframes fadeInBlur {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+@keyframes popInRotate {
+  from {
+    transform: scale(0) rotate(-10deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpFade {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIn {
+  from {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes scorePulse {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 15px rgba(255, 235, 59, 0.7);
+  }
+  50% {
+    transform: scale(1.1);
+    text-shadow: 0 0 25px rgba(255, 235, 59, 0.9);
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 15px rgba(255, 235, 59, 0.7);
+  }
+}
+
+@keyframes gameOverPulse {
+  0% {
+    text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(255, 71, 87, 0.8), 0 0 50px rgba(255, 71, 87, 0.4);
+  }
+  100% {
+    text-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+  }
+}
+
+.score-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px 16px;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+}
+
+.score-label {
+  color: #222;
+  font-size: 1em;
+  font-weight: 600;
+  background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
+  padding: 4px 10px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(255, 204, 51, 0.3);
+}
+
+.score-value {
+  color: #ffcc33;
+  font-size: 1.2em;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 } 
