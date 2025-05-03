@@ -75,9 +75,9 @@ button:hover {
   z-index: 3;
   background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
   color: #222;
-  font-size: 1em;
-  padding: 8px 18px;
-  border-radius: 8px;
+  font-size: 1.1em;
+  padding: 10px 24px;
+  border-radius: 10px;
   box-shadow: 0 2px 8px rgba(255, 204, 51, 0.3);
   transition: all 0.3s ease;
   border: none;
