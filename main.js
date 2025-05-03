@@ -734,19 +734,49 @@ installBtn.addEventListener('click', () => {
   }
 });
 
-// Offline Detection
+// Update online status events
 function updateOnlineStatus() {
   const isOnline = navigator.onLine;
-  const offlineBanner = document.getElementById('offline-banner');
+  const statusElement = document.getElementById('connection-status');
   
   if (!isOnline) {
-    offlineBanner.textContent = '📡 Offline Mode';
-    fadeIn(offlineBanner);
+    statusElement.className = 'offline';
+    statusElement.textContent = 'Offline';
   } else {
-    offlineBanner.textContent = '🌐 Online';
-    setTimeout(() => fadeOut(offlineBanner), 2000); // Hide after 2 seconds when online
+    statusElement.className = 'online';
+    statusElement.textContent = 'Online';
+    // Fade out after 3 seconds when online
+    setTimeout(() => {
+      if (navigator.onLine) { // Check again in case status changed
+        statusElement.style.opacity = '0';
+        setTimeout(() => {
+          if (navigator.onLine) { // Final check before hiding
+            statusElement.style.display = 'none';
+          }
+        }, 300);
+      }
+    }, 3000);
   }
 }
+
+// Show status immediately when going offline
+window.addEventListener('offline', () => {
+  const statusElement = document.getElementById('connection-status');
+  statusElement.style.display = 'flex';
+  statusElement.style.opacity = '1';
+  updateOnlineStatus();
+});
+
+// Show status briefly when going online
+window.addEventListener('online', () => {
+  const statusElement = document.getElementById('connection-status');
+  statusElement.style.display = 'flex';
+  statusElement.style.opacity = '1';
+  updateOnlineStatus();
+});
+
+// Initial check
+updateOnlineStatus();
 
 // Load images with error handling
 function loadImage(src) {
@@ -787,11 +817,6 @@ window.addEventListener('load', () => {
   initGame();
   initializeGame();
 });
-
-// Update online status events
-window.addEventListener('online', updateOnlineStatus);
-window.addEventListener('offline', updateOnlineStatus);
-updateOnlineStatus();
 
 // Animated bubbles for start screen
 function startScreenBubbles() {
