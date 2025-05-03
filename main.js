@@ -96,9 +96,29 @@ function drawElectricEffects() {
   ctx.shadowBlur = 0;
 }
 
+// PWA Install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const installBtn = document.getElementById('install-btn');
+  installBtn.style.display = 'block';
+});
+
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    document.getElementById('install-btn').style.display = 'none';
+  }
+  deferredPrompt = null;
+});
+
+// Adjust electric effects for mobile
 function createBottomElectricEffect() {
   bottomElectricEffects = []; // Clear existing effects
-  const numEffects = 6; // Reduced number for better centering
+  const numEffects = Math.min(6, Math.floor(canvas.width / 80)); // Adjust number based on screen width
   const totalWidth = canvas.width * 0.8; // Use 80% of canvas width
   const spacing = totalWidth / (numEffects - 1);
   const startX = (canvas.width - totalWidth) / 2; // Center starting position
@@ -107,7 +127,7 @@ function createBottomElectricEffect() {
     bottomElectricEffects.push({
       x: startX + i * spacing,
       y: canvas.height,
-      height: 15 + Math.random() * 10, // Reduced height range from 25+15 to 15+10
+      height: Math.min(15 + Math.random() * 10, canvas.height * 0.03), // Scale height with canvas
       alpha: 0.7 + Math.random() * 0.3,
       phase: Math.random() * Math.PI * 2
     });
@@ -117,7 +137,7 @@ function createBottomElectricEffect() {
 function updateBottomElectricEffects(timeScale) {
   bottomElectricEffects.forEach(effect => {
     effect.phase += 0.1 * timeScale;
-    effect.height = 15 + Math.sin(effect.phase) * 8; // Reduced height variation
+    effect.height = Math.min(15 + Math.sin(effect.phase) * 8, canvas.height * 0.03); // Scale height with canvas
     effect.alpha = 0.7 + Math.sin(effect.phase) * 0.3;
   });
 }
@@ -309,7 +329,6 @@ const finalScore = document.getElementById('final-score');
 const startBtn = document.getElementById('start-btn');
 const restartBtn = document.getElementById('restart-btn');
 const offlineBanner = document.getElementById('offline-banner');
-const installBtn = document.getElementById('install-btn');
 
 // Game Functions
 function resetGame() {
@@ -714,25 +733,6 @@ function showStartScreen() {
   startScreenBubbles();
 }
 showStartScreen();
-
-// PWA Install
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installBtn.textContent = 'Install';
-  installBtn.style.display = 'block';
-});
-
-installBtn.addEventListener('click', () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => {
-      installBtn.style.display = 'none';
-      deferredPrompt = null;
-    });
-  }
-});
 
 // Update online status events
 function updateOnlineStatus() {
