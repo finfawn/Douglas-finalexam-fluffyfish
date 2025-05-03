@@ -19,7 +19,7 @@ let fish = { x: 80, y: 320, w: 60, h: 48, vy: 0, gravity: 0.36, jump: -7.5, aliv
 let pipes = [];
 let score = 0;
 let highScore = 0;
-let gameState = 'start'; // start, playing, gameover
+let gameState = 'start'; // start, tutorial, playing, gameover
 let pipeGap = 200;
 let pipeWidth = 70;
 let pipeSpeed = 2.1;
@@ -332,6 +332,12 @@ function drawScore() {
 }
 
 function updateFish() {
+  if (gameState === 'tutorial') {
+    // In tutorial, fish just floats with a gentle bobbing motion
+    fish.y = canvas.height / 2 + Math.sin(frame / 30) * 10;
+    return;
+  }
+  
   fish.vy += fish.gravity;
   fish.y += fish.vy;
   if (fish.y + fish.h > canvas.height) {
@@ -379,22 +385,36 @@ function gameLoop() {
   drawBubbles();
   drawSplashes();
   drawParticles();
-  drawPipes();
-  drawFish();
-  drawScore();
-  drawCaustics();
+  
+  // Only draw pipes during actual gameplay
   if (gameState === 'playing') {
-    updateBubbles();
-    updateSplashes();
-    updateParticles();
-    updateFish();
+    drawPipes();
+  }
+  
+  drawFish();
+  if (gameState === 'playing') {
+    drawScore();
+  }
+  drawCaustics();
+  
+  // Always update visual effects and fish
+  updateBubbles();
+  updateSplashes();
+  updateParticles();
+  updateFish();
+  
+  // Only update gameplay elements during playing state
+  if (gameState === 'playing') {
     updatePipes();
     updateScore();
     if (checkCollision() || fish.y + fish.h >= canvas.height) {
       spawnParticles(fish.x, fish.y);
       gameOver();
     }
-    frame++;
+  }
+  
+  frame++;
+  if (gameState !== 'gameover') {
     requestAnimationFrame(gameLoop);
   } else {
     updateSplashes();
@@ -419,10 +439,19 @@ function startGame() {
   resetGame();
   fadeOut(startScreen);
   fadeOut(gameoverScreen);
-  gameState = 'playing';
+  gameState = 'tutorial';
+  fish.y = canvas.height / 2; // Start fish in the middle
+  fish.vy = 0; // No vertical velocity in tutorial
   bgMusic.currentTime = 0;
   bgMusic.play();
   gameLoop();
+}
+
+function startActualGame() {
+  gameState = 'playing';
+  fish.vy = fish.jump; // Give initial jump
+  spawnBubble(fish.x, fish.y);
+  spawnSplash(fish.x, fish.y);
 }
 
 function gameOver() {
@@ -443,7 +472,12 @@ function gameOver() {
 }
 
 function jump() {
+  if (gameState === 'tutorial') {
+    startActualGame();
+    return;
+  }
   if (gameState !== 'playing') return;
+  
   fish.vy = fish.jump;
   jumpSound.currentTime = 0;
   jumpSound.play();
