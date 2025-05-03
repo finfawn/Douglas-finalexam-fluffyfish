@@ -97,14 +97,17 @@ function drawElectricEffects() {
 }
 
 function createBottomElectricEffect() {
-  const numEffects = 8;
-  const spacing = canvas.width / numEffects;
+  bottomElectricEffects = []; // Clear existing effects
+  const numEffects = 6; // Reduced number for better centering
+  const totalWidth = canvas.width * 0.8; // Use 80% of canvas width
+  const spacing = totalWidth / (numEffects - 1);
+  const startX = (canvas.width - totalWidth) / 2; // Center starting position
   
   for (let i = 0; i < numEffects; i++) {
     bottomElectricEffects.push({
-      x: i * spacing + Math.random() * 20,
+      x: startX + i * spacing,
       y: canvas.height,
-      height: 20 + Math.random() * 15,
+      height: 15 + Math.random() * 10, // Reduced height range from 25+15 to 15+10
       alpha: 0.7 + Math.random() * 0.3,
       phase: Math.random() * Math.PI * 2
     });
@@ -114,7 +117,7 @@ function createBottomElectricEffect() {
 function updateBottomElectricEffects(timeScale) {
   bottomElectricEffects.forEach(effect => {
     effect.phase += 0.1 * timeScale;
-    effect.height = 20 + Math.sin(effect.phase) * 10;
+    effect.height = 15 + Math.sin(effect.phase) * 8; // Reduced height variation
     effect.alpha = 0.7 + Math.sin(effect.phase) * 0.3;
   });
 }
@@ -462,17 +465,7 @@ function drawPipes() {
 }
 
 function drawScore() {
-  ctx.save();
-  ctx.font = 'bold 24px "Baloo 2", Arial, sans-serif';
-  ctx.fillStyle = '#fff';
-  ctx.strokeStyle = '#00e6ff';
-  ctx.lineWidth = 4;
-  ctx.textAlign = 'left';
-  ctx.shadowColor = '#00e6ff';
-  ctx.shadowBlur = 8;
-  ctx.strokeText(score.toString(), 20, 40);
-  ctx.fillText(score.toString(), 20, 40);
-  ctx.restore();
+  // Score is now handled by HTML elements only
 }
 
 function updateGameLogic(deltaTime) {
@@ -576,17 +569,14 @@ function gameLoop(currentTime) {
   drawBubbles();
   drawSplashes();
   drawParticles();
-  drawBottomElectricEffects();
   
   if (gameState === 'playing') {
     drawPipes();
   }
   
   drawFish();
-  if (gameState === 'playing') {
-    drawScore();
-  }
   drawCaustics();
+  drawBottomElectricEffects(); // Draw electric effects last for better layering
   
   if (gameState === 'playing') {
     if (checkCollision()) {
