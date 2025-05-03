@@ -42,6 +42,24 @@ const ELECTRIC_COLORS = ['#00ffff', '#ffffff', '#4df7ff'];
 // Add bottom electric effect variables
 let bottomElectricEffects = [];
 
+// Handle mobile viewport height
+function setMobileHeight() {
+  let vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+// Call on initial load
+setMobileHeight();
+
+// Update on resize and orientation change
+window.addEventListener('resize', setMobileHeight);
+window.addEventListener('orientationchange', () => {
+  setTimeout(setMobileHeight, 100);
+});
+
+// Add touch-action to prevent unwanted scrolling
+document.body.style.touchAction = 'none';
+
 function createElectricEffect(x, y) {
   for (let i = 0; i < 12; i++) {
     electricEffects.push({

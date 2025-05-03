@@ -162,54 +162,55 @@ button:hover {
   body {
     background: none;
     padding: 0;
+    height: 100%;
+    min-height: -webkit-fill-available;
   }
   
   #game-container {
     width: 100vw;
     height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
     max-width: none;
     margin: 0;
     border-radius: 0;
-    aspect-ratio: auto;
+    aspect-ratio: unset;
+    position: fixed;
+    top: 0;
+    left: 0;
   }
   
   canvas {
     border-radius: 0;
+    height: 100%;
+    object-fit: cover;
   }
   
   .overlay {
     border-radius: 0;
+    height: 100%;
   }
   
   button {
     padding: 15px 40px;
     font-size: 1.4em;
+    margin-bottom: env(safe-area-inset-bottom, 20px);
   }
   
   #install-btn {
     padding: 6px 16px;
     font-size: 0.9em;
+    bottom: env(safe-area-inset-bottom, 20px);
   }
   
   .score-container {
-    top: 10px;
+    top: max(10px, env(safe-area-inset-top, 10px));
     left: 10px;
     padding: 6px;
   }
   
-  .score-label {
-    font-size: 1em;
-  }
-  
-  .score-value {
-    font-size: 1em;
-    padding: 3px 10px;
-  }
-  
-  #install-btn {
-    bottom: 15px;
-    font-size: 1em;
-    padding: 6px 20px;
+  #connection-status {
+    top: max(10px, env(safe-area-inset-top, 10px));
+    right: 10px;
   }
 }
 
