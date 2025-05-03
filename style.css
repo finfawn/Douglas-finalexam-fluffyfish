@@ -40,7 +40,7 @@ canvas {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 2;
+  z-index: 5;
   border-radius: 20px;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   backdrop-filter: blur(6px);
@@ -73,7 +73,7 @@ button:hover {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 3;
+  z-index: 10;
   background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
   color: #222;
   font-size: 1.1em;
@@ -88,7 +88,9 @@ button:hover {
   display: none;
   margin-bottom: env(safe-area-inset-bottom, 0px);
   width: auto;
-  max-width: 90%;
+  min-width: 120px;
+  max-width: 160px;
+  text-align: center;
 }
 #install-btn:hover {
   transform: translateX(-50%) scale(1.05);
@@ -233,6 +235,21 @@ button:hover {
     padding: 8px 20px;
     bottom: 15px;
   }
+  
+  .score-container,
+  #connection-status {
+    padding: 6px 12px;
+    font-size: 0.9em;
+    top: 10px;
+  }
+  
+  .score-container {
+    left: 10px;
+  }
+  
+  #connection-status {
+    right: 10px;
+  }
 }
 
 #offline-banner {
@@ -357,11 +374,27 @@ button:hover {
   }
 }
 
+.score-container {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  min-width: 100px;
+  max-width: 140px;
+}
+
 #connection-status {
-  position: absolute;
+  position: fixed;
   top: 15px;
   right: 15px;
-  z-index: 3;
+  z-index: 10;
   padding: 8px 16px;
   border-radius: 12px;
   font-size: 1em;
@@ -371,6 +404,10 @@ button:hover {
   gap: 6px;
   backdrop-filter: blur(4px);
   transition: all 0.3s ease;
+  background: rgba(0, 0, 0, 0.2);
+  min-width: 80px;
+  max-width: 120px;
+  justify-content: center;
 }
 
 #connection-status.online {

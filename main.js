@@ -745,35 +745,18 @@ function updateOnlineStatus() {
   } else {
     statusElement.className = 'online';
     statusElement.textContent = 'Online';
-    // Fade out after 3 seconds when online
-    setTimeout(() => {
-      if (navigator.onLine) { // Check again in case status changed
-        statusElement.style.opacity = '0';
-        setTimeout(() => {
-          if (navigator.onLine) { // Final check before hiding
-            statusElement.style.display = 'none';
-          }
-        }, 300);
-      }
-    }, 3000);
   }
+  
+  // Always ensure the element is visible
+  statusElement.style.display = 'flex';
+  statusElement.style.opacity = '1';
 }
 
-// Show status immediately when going offline
-window.addEventListener('offline', () => {
-  const statusElement = document.getElementById('connection-status');
-  statusElement.style.display = 'flex';
-  statusElement.style.opacity = '1';
-  updateOnlineStatus();
-});
+// Show status when going offline
+window.addEventListener('offline', updateOnlineStatus);
 
-// Show status briefly when going online
-window.addEventListener('online', () => {
-  const statusElement = document.getElementById('connection-status');
-  statusElement.style.display = 'flex';
-  statusElement.style.opacity = '1';
-  updateOnlineStatus();
-});
+// Show status when going online
+window.addEventListener('online', updateOnlineStatus);
 
 // Initial check
 updateOnlineStatus();
