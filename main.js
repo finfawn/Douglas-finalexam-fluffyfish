@@ -309,7 +309,12 @@ function drawFish() {
   // Fish bobbing and rotation
   let bob = Math.sin(frame / 8) * 2;
   let angle = Math.max(Math.min(fish.vy * 0.08, 0.5), -0.5);
-  let waggle = fish.alive ? (1 + Math.sin(frame / 3) * 0.06) : 1; // Only waggle if alive
+  let waggle = fish.alive ? (1 + Math.sin(frame / 3) * 0.06) : 1;
+  
+  // When dead, add a slight downward tilt
+  if (!fish.alive) {
+    angle = Math.min(angle + 0.3, Math.PI / 4);
+  }
   
   ctx.translate(fish.x + fish.w / 2, fish.y + fish.h / 2 + (fish.alive ? bob : 0));
   ctx.rotate(angle);
@@ -571,16 +576,20 @@ function gameOver() {
   fish.alive = false;
   fishZapped = true;
   fishZapFrame = 0;
+  
+  // Play sound effects
   bgMusic.pause();
   zapSound.currentTime = 0;
   zapSound.play();
+  
+  // Show game over screen with longer delay to show death animation
   setTimeout(() => {
     fishZapped = false;
     gameoverSound.currentTime = 0;
     gameoverSound.play();
-  }, 600); // Play game over music after zap
-  finalScore.textContent = `Your Score: ${score}`;
-  fadeIn(gameoverScreen);
+    finalScore.textContent = `Your Score: ${score}`;
+    fadeIn(gameoverScreen);
+  }, 1500); // Increased delay to 1.5 seconds
 }
 
 function jump() {
@@ -632,22 +641,59 @@ installBtn.addEventListener('click', () => {
 
 // Offline Detection
 function updateOnlineStatus() {
-  if (!navigator.onLine) {
+  const isOnline = navigator.onLine;
+  const offlineBanner = document.getElementById('offline-banner');
+  
+  if (!isOnline) {
+    offlineBanner.textContent = '📡 Offline Mode';
     fadeIn(offlineBanner);
   } else {
-    fadeOut(offlineBanner);
+    offlineBanner.textContent = '🌐 Online';
+    setTimeout(() => fadeOut(offlineBanner), 2000); // Hide after 2 seconds when online
   }
 }
+
+// Load images with error handling
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => {
+      console.warn(`Failed to load image: ${src}`);
+      resolve(img); // Resolve anyway to continue game
+    };
+    img.src = src;
+  });
+}
+
+// Initialize game assets
+async function initializeGame() {
+  try {
+    // Load images
+    const [fishNormal, fishDead] = await Promise.all([
+      loadImage('fish.png'),
+      loadImage('fish-dead.png')
+    ]);
+    
+    // Update global image references
+    fishImg.src = fishNormal.src;
+    fishDeadImg.src = fishDead.src;
+    
+    // Start the game
+    showStartScreen();
+  } catch (error) {
+    console.warn('Some assets failed to load, but game will continue');
+    showStartScreen();
+  }
+}
+
+// Call initialize when the page loads
+window.addEventListener('load', initializeGame);
+
+// Update online status events
 window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
-
-// Register Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js');
-  });
-}
 
 // Animated bubbles for start screen
 function startScreenBubbles() {
