@@ -25,6 +25,32 @@ let pipeWidth = 70;
 let pipeSpeed = 2.1;
 let frame = 0;
 
+// Handle canvas sizing
+function resizeCanvas() {
+  const container = canvas.parentElement;
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+  
+  canvas.width = containerWidth;
+  canvas.height = containerHeight;
+  
+  // Adjust game parameters based on screen size
+  pipeGap = Math.min(containerHeight * 0.28, 200);
+  pipeWidth = Math.min(containerWidth * 0.15, 70);
+  fish.w = Math.min(containerWidth * 0.125, 60);
+  fish.h = Math.min(containerHeight * 0.067, 48);
+  fish.x = containerWidth * 0.167;
+  
+  // Adjust physics for screen size
+  fish.gravity = containerHeight * 0.0005;
+  fish.jump = -containerHeight * 0.0104;
+  pipeSpeed = containerWidth * 0.004;
+}
+
+// Call resize handler on load and window resize
+window.addEventListener('load', resizeCanvas);
+window.addEventListener('resize', resizeCanvas);
+
 // Bubble Variables
 let bubbles = [];
 function spawnBubble(x, y) {
