@@ -5,8 +5,10 @@ const ctx = canvas.getContext('2d');
 // Images
 const fishImg = new Image();
 fishImg.src = 'fish.png';
+fishImg.setAttribute('crossOrigin', 'anonymous');
 const fishDeadImg = new Image();
 fishDeadImg.src = 'fish-dead.png';
+fishDeadImg.setAttribute('crossOrigin', 'anonymous');
 
 // Sounds
 const bgMusic = document.getElementById('bg-music');
@@ -31,6 +33,64 @@ let deltaTime = 0;
 const PIPE_SPAWN_INTERVAL = 120;
 const BUBBLE_SPAWN_INTERVAL = 20;
 const FISH_BOB_FREQUENCY = 1/30;
+
+// Add electric effect variables
+let electricEffects = [];
+const ELECTRIC_COLORS = ['#00ffff', '#ffffff', '#4df7ff'];
+
+function createElectricEffect(x, y) {
+  for (let i = 0; i < 12; i++) {
+    electricEffects.push({
+      startX: x + fish.w / 2,
+      startY: y + fish.h / 2,
+      angle: (Math.PI * 2 * i) / 12,
+      length: Math.random() * 30 + 20,
+      segments: [],
+      alpha: 1,
+      width: Math.random() * 2 + 2,
+      color: ELECTRIC_COLORS[Math.floor(Math.random() * ELECTRIC_COLORS.length)]
+    });
+  }
+}
+
+function updateElectricEffects(timeScale) {
+  electricEffects = electricEffects.filter(e => e.alpha > 0);
+  electricEffects.forEach(effect => {
+    effect.alpha -= 0.03 * timeScale;
+    effect.segments = [];
+    let x = effect.startX;
+    let y = effect.startY;
+    let angle = effect.angle;
+    
+    for (let i = 0; i < 5; i++) {
+      const length = effect.length / 5;
+      angle += (Math.random() - 0.5) * 0.5;
+      const endX = x + Math.cos(angle) * length;
+      const endY = y + Math.sin(angle) * length;
+      effect.segments.push({ x1: x, y1: y, x2: endX, y2: endY });
+      x = endX;
+      y = endY;
+    }
+  });
+}
+
+function drawElectricEffects() {
+  electricEffects.forEach(effect => {
+    effect.segments.forEach(segment => {
+      ctx.beginPath();
+      ctx.strokeStyle = effect.color;
+      ctx.lineWidth = effect.width;
+      ctx.globalAlpha = effect.alpha;
+      ctx.shadowColor = effect.color;
+      ctx.shadowBlur = 15;
+      ctx.moveTo(segment.x1, segment.y1);
+      ctx.lineTo(segment.x2, segment.y2);
+      ctx.stroke();
+    });
+  });
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+}
 
 // Handle canvas sizing
 function resizeCanvas() {
@@ -238,18 +298,33 @@ function drawFishZapEffect() {
 
 function drawFish() {
   ctx.save();
+  
+  // Apply image smoothing settings for better quality
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  
   ctx.shadowColor = '#00e6ff';
   ctx.shadowBlur = 16;
+  
   // Fish bobbing and rotation
   let bob = Math.sin(frame / 8) * 2;
-  let angle = Math.max(Math.min(fish.vy * 0.08, 0.5), -0.5); // rotate based on velocity
-  let waggle = 1 + Math.sin(frame / 3) * 0.06; // tail waggle effect
-  ctx.translate(fish.x + fish.w / 2, fish.y + fish.h / 2 + bob);
+  let angle = Math.max(Math.min(fish.vy * 0.08, 0.5), -0.5);
+  let waggle = fish.alive ? (1 + Math.sin(frame / 3) * 0.06) : 1; // Only waggle if alive
+  
+  ctx.translate(fish.x + fish.w / 2, fish.y + fish.h / 2 + (fish.alive ? bob : 0));
   ctx.rotate(angle);
   ctx.scale(waggle, 1);
-  ctx.drawImage(fish.alive ? fishImg : fishDeadImg, -fish.w / 2, -fish.h / 2, fish.w, fish.h);
+  
+  // Draw the appropriate fish image
+  const currentFishImg = fish.alive ? fishImg : fishDeadImg;
+  ctx.drawImage(currentFishImg, -fish.w / 2, -fish.h / 2, fish.w, fish.h);
+  
   ctx.restore();
-  drawFishZapEffect();
+  
+  // Draw electric effects if fish is zapped
+  if (!fish.alive && fishZapped) {
+    drawElectricEffects();
+  }
 }
 
 // Draw electric zap effect on the surface of the pipes
@@ -339,8 +414,12 @@ function drawScore() {
 }
 
 function updateGameLogic(deltaTime) {
-  // Scale movements by deltaTime to make them frame-rate independent
-  const timeScale = deltaTime / (1000/60); // normalize to 60 FPS
+  const timeScale = deltaTime / (1000/60);
+
+  // Update electric effects
+  if (gameState === 'gameover' && fishZapped) {
+    updateElectricEffects(timeScale);
+  }
 
   if (gameState === 'playing') {
     // Update pipes
@@ -440,6 +519,8 @@ function gameLoop(currentTime) {
   
   if (gameState === 'playing') {
     if (checkCollision() || fish.y + fish.h >= canvas.height) {
+      fish.alive = false;
+      createElectricEffect(fish.x, fish.y);
       spawnParticles(fish.x, fish.y);
       gameOver();
     }

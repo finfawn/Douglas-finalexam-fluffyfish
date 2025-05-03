@@ -70,18 +70,27 @@ button:hover {
 }
 #install-btn {
   position: absolute;
-  top: 10px; right: 10px;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 3;
   background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
   color: #222;
   font-size: 1em;
-  padding: 8px 18px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px #ffcc3344;
+  padding: 10px 24px;
+  border-radius: 25px;
+  box-shadow: 0 4px 15px rgba(255, 204, 51, 0.3);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-family: 'Baloo 2', Arial, sans-serif;
+  font-weight: 600;
+  display: none;
 }
 #install-btn:hover {
   background: linear-gradient(90deg, #ffcc33 0%, #ffb347 100%);
-  color: #000;
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 204, 51, 0.4);
 }
 #final-score {
   font-size: 2em;
@@ -172,6 +181,12 @@ button:hover {
   button {
     padding: 15px 40px;
     font-size: 1.4em;
+  }
+  
+  #install-btn {
+    bottom: 30px;
+    padding: 12px 28px;
+    font-size: 1.1em;
   }
 }
 
